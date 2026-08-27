@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --primary: #10B981; --primary-hover: #059669; --primary-dark: #064E3B; --primary-light: #ECFDF5; --primary-glow: rgba(16, 185, 129, 0.25);
+  --secondary: #3B82F6; --bg-main: #F8FAFC; --card-bg: #FFFFFF; --text-main: #0F172A; --text-muted: #64748B; --border-color: #E2E8F0; --border-focus: #10B981;
+  --shadow-subtle: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+  --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg-main); color: var(--text-main); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+/* Estructura Base (App.jsx) */
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; background: #064E3B; color: white; }
+.brand { color: white; text-decoration: none; font-size: 20px; font-weight: 700; }
+.topbar-actions { display: flex; align-items: center; gap: 16px; }
+.content { flex: 1; max-width: 1040px; width: 100%; margin: 0 auto; padding: 32px 20px; }
+
+/* Botones e Inputs Globales */
+.btn-primary { background: var(--primary); color: #FFFFFF; border: none; padding: 12px 24px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3); }
+.btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: inherit; padding: 8px 14px; border-radius: 10px; cursor: pointer; }
+.input-modern { width: 100%; padding: 14px 16px; background: #F8FAFC; border: 1.5px solid var(--border-color); border-radius: 12px; font-size: 15px; transition: all 0.2s; }
+.input-modern:focus { background: white; border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-glow); }
+
+/* Utilidades */
+.fade-in { animation: fadeIn 0.4s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.badge { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.tag-blue { background: #DBEAFE; color: #1D4ED8; }
+.tag-green { background: #D1FAE5; color: #047857; }
+.tag-purple { background: #F3E8FF; color: #7E22CE; }
+/* Estructura Base (App.jsx) */
+.app-shell { 
+  min-height: 100vh; 
+  display: flex; 
+  flex-direction: column; 
+  padding-top: 72px; /* IMPORTANTE: Empuja el contenido hacia abajo para que el navbar fijo no lo tape */
+}
+
+.topbar { 
+  position: fixed; /* Hace que el menú se quede fijo */
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  z-index: 1000; /* Asegura que siempre esté por encima de todo */
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 16px 32px; 
+  background: rgba(6, 78, 59, 0.95); /* Color de fondo con un toque de transparencia */
+  backdrop-filter: blur(8px); /* Efecto cristal moderno */
+  color: white; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+  height: 72px;
+}
+
+.brand { color: white; text-decoration: none; font-size: 20px; font-weight: 700; }
+.topbar-actions { display: flex; align-items: center; gap: 16px; }
+
+/* El contenido crece para empujar el footer al fondo */
+.content { 
+  flex: 1; 
+  max-width: 1040px; 
+  width: 100%; 
+  margin: 0 auto; 
+  padding: 40px 20px; 
+}
+
+/* --- FOOTER --- */
+.footer {
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-color);
+  padding: 32px 20px;
+  text-align: center;
+  margin-top: auto; /* Empuja el footer al final de la pantalla si hay poco contenido */
+}
+
+.footer p {
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.footer .footer-credits {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 13px;
+}

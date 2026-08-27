@@ -1,0 +1,34 @@
+.profile-container { padding-bottom: 40px; }
+.loading-state { display: flex; flex-direction: column; align-items: center; padding: 80px 20px; color: var(--text-muted); gap: 16px; font-weight: 500; }
+
+/* Contenedores y Tarjetas del Perfil */
+.profile-header, .stat-card, .vaccine-card, .record-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; box-shadow: var(--shadow-subtle); transition: all 0.2s ease; }
+.profile-header { display: flex; justify-content: space-between; align-items: center; padding: 24px 32px; margin-bottom: 32px; flex-wrap: wrap; gap: 20px; }
+.profile-header-content { display: flex; align-items: center; gap: 24px; }
+.pet-avatar-large { font-size: 48px; width: 88px; height: 88px; background: var(--primary-light); border-radius: 24px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary-glow); }
+.pet-info-main h1 { font-size: 28px; margin-bottom: 10px; color: var(--text-main); }
+.pet-badges, .supplements-list { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Botones de Pestañas */
+.tabs-modern { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid var(--border-color); }
+.tab-modern { background: transparent; border: none; padding: 14px 20px; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; border-radius: 8px 8px 0 0; }
+.tab-modern.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-light); }
+.btn-destructive-ghost { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; padding: 10px 16px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+
+/* Secciones Internas */
+.card-title, .section-title { font-size: 20px; margin-bottom: 16px; font-weight: 800; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 24px; }
+.stat-card { padding: 24px; display: flex; gap: 20px; align-items: center; }
+.stat-icon { font-size: 28px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; }
+.stat-data p { font-size: 28px; font-weight: 800; margin: 4px 0 0; line-height: 1; }
+.diet-box { background: #F8FAFC; border-left: 4px solid var(--primary); padding: 18px 24px; border-radius: 0 12px 12px 0; font-weight: 500; }
+.supplement-tag { background: #F1F5F9; border: 1px solid var(--border-color); padding: 10px 18px; border-radius: 24px; font-size: 14px; font-weight: 600; }
+
+/* Listas */
+.records-list { display: flex; flex-direction: column; gap: 16px; }
+.record-card { padding: 0; align-items: stretch; display: flex; }
+.record-date { background: #F8FAFC; padding: 24px; min-width: 100px; border-right: 1px solid var(--border-color); text-align: center; }
+.record-details { padding: 24px; flex: 1; }
+.vaccines-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+.vaccine-card { padding: 24px; display: flex; gap: 20px; align-items: flex-start; }
+.vaccine-icon { font-size: 32px; background: #ECFDF5; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid #D1FAE5; }
