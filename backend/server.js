@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const path = require("path");
 
 const authRoutes = require("./routes/auth");
 const petsRoutes = require("./routes/pets");
@@ -20,6 +21,7 @@ app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/pets", petsRoutes);
 app.use("/api/pets/:petId/medical-records", medicalRecordsRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Servir archivos estáticos desde 'uploads/'
 app.use("/api/pets/:petId/vaccines", vaccinesRoutes);
 app.use("/api/reminders", remindersRoutes);
 

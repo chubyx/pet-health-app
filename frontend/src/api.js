@@ -43,6 +43,24 @@ export const api = {
     request(`/pets/${petId}/medical-records`, { method: "POST", body: JSON.stringify(payload) }),
   deleteMedicalRecord: (petId, recordId) =>
     request(`/pets/${petId}/medical-records/${recordId}`, { method: "DELETE" }),
+  
+  // Escáner / Subida de documentos
+  uploadDocument: async (petId, formData) => {
+    const token = getToken();
+    const res = await fetch(`${BASE_URL}/pets/${petId}/medical-records/document`, {
+      method: "POST",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || "Error al subir el documento");
+    }
+    return data;
+  },
 
   // Vaccines
   getVaccines: (petId) => request(`/pets/${petId}/vaccines`),

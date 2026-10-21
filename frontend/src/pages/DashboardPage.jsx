@@ -32,12 +32,27 @@ export default function DashboardPage() {
 
   useEffect(() => { loadData(); }, []);
 
-  async function handleCreate(e) {
+async function handleCreate(e) {
     e.preventDefault();
-    await api.createPet({ ...form, weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null });
-    setForm(emptyForm);
-    setShowForm(false);
-    loadData();
+    try {
+      // 1. Añadimos un pequeño log para confirmar qué datos estamos enviando
+      const payload = { ...form, weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null };
+      console.log("Enviando mascota:", payload);
+
+      // 2. Ejecutamos la petición
+      await api.createPet(payload);
+      
+      // 3. Si todo sale bien, limpiamos y cerramos
+      setForm(emptyForm);
+      setShowForm(false);
+      loadData();
+      alert("Mascota registrada exitosamente");
+
+    } catch (error) {
+      // 4. Si algo falla, lo mostramos en consola y en un alert
+      console.error("Error al guardar la mascota:", error);
+      alert("Hubo un error al guardar. Revisa la consola para más detalles.");
+    }
   }
 
   if (loading) return (

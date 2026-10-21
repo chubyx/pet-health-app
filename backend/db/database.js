@@ -36,10 +36,14 @@ CREATE TABLE IF NOT EXISTS medical_records (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   pet_id INTEGER NOT NULL REFERENCES pets(id) ON DELETE CASCADE,
   record_date TEXT NOT NULL,   -- YYYY-MM-DD
-  record_type TEXT NOT NULL CHECK (record_type IN ('consulta','cirugia','examen','tratamiento','otro')),
+  -- Modificado: Se agregó 'documento' a las opciones válidas
+  record_type TEXT NOT NULL CHECK (record_type IN ('consulta','cirugia','examen','tratamiento','otro','documento')),
   description TEXT NOT NULL,
   vet_name TEXT,
   clinic_name TEXT,
+  -- NUEVAS COLUMNAS PARA EL ESCÁNER
+  document_url TEXT,
+  extracted_text TEXT,
   created_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -57,5 +61,14 @@ CREATE INDEX IF NOT EXISTS idx_pets_owner ON pets(owner_id);
 CREATE INDEX IF NOT EXISTS idx_medical_pet ON medical_records(pet_id);
 CREATE INDEX IF NOT EXISTS idx_vaccines_pet ON vaccines(pet_id);
 `);
+
+// MIGRACIÓN AUTOMÁTICA (Para bases de datos ya existentes)
+// Intenta agregar las columnas si la tabla ya había sido creada previamente.
+try {
+  db.exec("ALTER TABLE medical_records ADD COLUMN document_url TEXT;");
+  db.exec("ALTER TABLE medical_records ADD COLUMN extracted_text TEXT;");
+} catch (error) {
+  // Ignoramos el error si las columnas ya existen (ej. Error: duplicate column name)
+}
 
 module.exports = db;
