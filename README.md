@@ -11,7 +11,7 @@ nivel de actividad.
 
 | Capa       | Tecnología                              |
 |------------|------------------------------------------|
-| Frontend   | React 18 + Vite + React Router           |
+| Frontend   | React 18 + Vite + React Router + Tesseract.js (OCR)      |
 | Backend    | Node.js + Express                        |
 | Base datos | SQLite (módulo nativo `node:sqlite`, sin dependencias que compilar) — fácil de migrar a Postgres/MySQL |
 | Auth       | JWT + bcrypt                              |
@@ -63,6 +63,14 @@ iniciar el servidor por primera vez.
 cd frontend
 npm install
 npm run dev                # http://localhost:5173
+```
+### 3. Exponer con Ngrok (Opcional para pruebas móviles)
+
+Si deseas probar la aplicación (incluyendo la cámara y el escáner) desde tu teléfono celular:
+
+```bash
+npx ngrok http 5173
+Nota: Si te pide autenticación, puedes registrarte gratis en ngrok.com y agregar tu token con npx ngrok config add-authtoken <tu_token>
 ```
 
 El frontend usa un proxy (`vite.config.js`) que redirige `/api` hacia
