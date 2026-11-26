@@ -1,9 +1,10 @@
-import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import { useAuth } from "./AuthContext.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import PetProfilePage from "./pages/PetProfilePage.jsx";
+import MarketplacePage from "./pages/MarketplacePage.jsx";
 
 function PrivateRoute({ children }) {
   const { owner } = useAuth();
@@ -19,10 +20,20 @@ export default function App() {
       <header className="topbar">
         <Link to="/" className="brand">🐾 Pet Health</Link>
         {owner && (
-          <div className="topbar-actions">
-            <span>Hola, {owner.name}</span>
-            <button onClick={logout} className="btn-ghost">Cerrar sesión</button>
-          </div>
+          <>
+            <nav className="topbar-nav" aria-label="Navegación principal">
+              <NavLink to="/" end className={({ isActive }) => isActive ? "topbar-link active" : "topbar-link"}>
+                Mis mascotas
+              </NavLink>
+              <NavLink to="/marketplace" className={({ isActive }) => isActive ? "topbar-link active" : "topbar-link"}>
+                Tienda
+              </NavLink>
+            </nav>
+            <div className="topbar-actions">
+              <span>Hola, {owner.name}</span>
+              <button onClick={logout} className="btn-ghost">Cerrar sesión</button>
+            </div>
+          </>
         )}
       </header>
 
@@ -44,6 +55,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <PetProfilePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/marketplace"
+            element={
+              <PrivateRoute>
+                <MarketplacePage />
               </PrivateRoute>
             }
           />

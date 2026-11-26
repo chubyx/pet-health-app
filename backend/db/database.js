@@ -57,9 +57,27 @@ CREATE TABLE IF NOT EXISTS vaccines (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS activity_goals (
+  pet_id INTEGER PRIMARY KEY REFERENCES pets(id) ON DELETE CASCADE,
+  daily_goal_minutes INTEGER NOT NULL CHECK (daily_goal_minutes BETWEEN 1 AND 1440),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  pet_id INTEGER NOT NULL REFERENCES pets(id) ON DELETE CASCADE,
+  activity_date TEXT NOT NULL,
+  activity_type TEXT NOT NULL CHECK (activity_type IN ('walk','play','training','other')),
+  duration_minutes INTEGER NOT NULL CHECK (duration_minutes BETWEEN 1 AND 1440),
+  source TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('manual','device')),
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_pets_owner ON pets(owner_id);
 CREATE INDEX IF NOT EXISTS idx_medical_pet ON medical_records(pet_id);
 CREATE INDEX IF NOT EXISTS idx_vaccines_pet ON vaccines(pet_id);
+CREATE INDEX IF NOT EXISTS idx_activity_pet_date ON activity_logs(pet_id, activity_date);
 `);
 
 // MIGRACIÓN AUTOMÁTICA (Para bases de datos ya existentes)

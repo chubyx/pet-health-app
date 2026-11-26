@@ -1,17 +1,39 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api";
 import Tesseract from "tesseract.js";
 import "../styles/Profile.css";
 
+const activityLabels = {
+  walk: "Paseo",
+  play: "Juego",
+  training: "Entrenamiento",
+  other: "Otra actividad",
+};
+
+function getLocalDate() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+}
+
 export default function PetProfilePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [pet, setPet] = useState(null);
-  const [tab, setTab] = useState("nutricion");
+  const [tab, setTab] = useState(() => searchParams.get("tab") === "actividad" ? "actividad" : "nutricion");
   const [recommendation, setRecommendation] = useState(null);
   const [records, setRecords] = useState([]);
   const [vaccines, setVaccines] = useState([]);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
+  const [activityDate, setActivityDate] = useState(getLocalDate);
+  const [activity, setActivity] = useState(null);
+  const [activityLoading, setActivityLoading] = useState(true);
+  const [activityError, setActivityError] = useState("");
+  const [activityForm, setActivityForm] = useState({ activity_type: "walk", duration_minutes: "" });
+  const [goalForm, setGoalForm] = useState("");
 
   // Estados para formularios manuales
   const [recordForm, setRecordForm] = useState({ record_date: "", record_type: "consulta", description: "", vet_name: "" });
@@ -24,19 +46,90 @@ export default function PetProfilePage() {
   const [docDescription, setDocDescription] = useState("");
 
   async function loadAll() {
-    const [petData, rec, recs, vacs] = await Promise.all([
-      api.getPet(id),
-      api.getRecommendation(id),
-      api.getMedicalRecords(id),
-      api.getVaccines(id),
-    ]);
-    setPet(petData);
-    setRecommendation(rec);
-    setRecords(recs);
-    setVaccines(vacs);
+    try {
+      const [petData, rec, recs, vacs] = await Promise.all([
+        api.getPet(id),
+        api.getRecommendation(id),
+        api.getMedicalRecords(id),
+        api.getVaccines(id),
+      ]);
+      setPet(petData);
+      setRecommendation(rec);
+      setRecords(recs);
+      setVaccines(vacs);
+    } catch (error) {
+      console.error("Error cargando el perfil de la mascota:", error);
+    }
+  }
+
+  async function loadActivity() {
+    setActivityLoading(true);
+    try {
+      const activityData = await api.getPetActivity(id, activityDate);
+      setActivity(activityData);
+      setGoalForm(activityData.daily_goal_minutes ? String(activityData.daily_goal_minutes) : "");
+      setActivityError("");
+    } catch (error) {
+      console.error("Error cargando la actividad de la mascota:", error);
+      setActivityError("No se pudieron cargar los datos de actividad. Inténtalo nuevamente.");
+    } finally {
+      setActivityLoading(false);
+    }
   }
 
   useEffect(() => { loadAll(); }, [id]);
+  useEffect(() => { loadActivity(); }, [id, activityDate]);
+
+  async function handleAddActivity(event) {
+    event.preventDefault();
+    setActivityError("");
+    try {
+      await api.addPetActivity(id, {
+        ...activityForm,
+        activity_date: activityDate,
+        duration_minutes: Number(activityForm.duration_minutes),
+      });
+      setActivityForm({ activity_type: "walk", duration_minutes: "" });
+      await loadActivity();
+    } catch (error) {
+      console.error("Error guardando la actividad:", error);
+      setActivityError(error.message || "No se pudo guardar la actividad.");
+    }
+  }
+
+  async function handleSaveGoal(event) {
+    event.preventDefault();
+    setActivityError("");
+    try {
+      await api.setPetActivityGoal(id, Number(goalForm));
+      await loadActivity();
+    } catch (error) {
+      console.error("Error guardando la meta de actividad:", error);
+      setActivityError(error.message || "No se pudo guardar la meta diaria.");
+    }
+  }
+
+  async function handleAvatarChange(event) {
+    const imageFile = event.target.files?.[0];
+    event.target.value = "";
+    if (!imageFile) return;
+    if (imageFile.size > 5 * 1024 * 1024) {
+      setAvatarError("La imagen debe pesar 5 MB o menos.");
+      return;
+    }
+
+    setAvatarUploading(true);
+    setAvatarError("");
+    try {
+      const updatedPet = await api.uploadPetAvatar(id, imageFile);
+      setPet(updatedPet);
+    } catch (error) {
+      console.error("Error subiendo la foto de la mascota:", error);
+      setAvatarError(error.message || "No se pudo subir la foto.");
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
 
   async function handleAddRecord(e) {
     e.preventDefault();
@@ -126,8 +219,25 @@ async function handleScanSubmit(e) {
       {/* HEADER DE LA MASCOTA */}
       <header className="profile-header card">
         <div className="profile-header-content">
-          <div className="pet-avatar-large">
-            {pet.species?.toLowerCase() === 'gato' ? '🐈' : '🐕'}
+          <div className="pet-avatar-profile">
+            <div className="pet-avatar-large">
+              {pet.avatar_url ? (
+                <img src={pet.avatar_url} alt={`Foto de ${pet.name}`} />
+              ) : (
+                pet.species?.toLowerCase() === 'gato' ? '🐈' : pet.species?.toLowerCase() === 'perro' ? '🐕' : '🐾'
+              )}
+            </div>
+            <label className={`pet-avatar-upload${avatarUploading ? " uploading" : ""}`}>
+              {avatarUploading ? "Subiendo..." : pet.avatar_url ? "Cambiar foto" : "Agregar foto"}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleAvatarChange}
+                disabled={avatarUploading}
+                aria-label={`Subir foto de ${pet.name}`}
+              />
+            </label>
+            {avatarError && <span className="pet-avatar-error" role="alert">{avatarError}</span>}
           </div>
           <div className="pet-info-main">
             <h1>{pet.name}</h1>
@@ -150,6 +260,9 @@ async function handleScanSubmit(e) {
         </button>
         <button className={`tab-modern ${tab === "historial" ? "active" : ""}`} onClick={() => setTab("historial")}>
           🩺 Historial Médico
+        </button>
+        <button className={`tab-modern ${tab === "actividad" ? "active" : ""}`} onClick={() => setTab("actividad")}>
+          🐾 Actividad diaria
         </button>
         <button className={`tab-modern ${tab === "vacunas" ? "active" : ""}`} onClick={() => setTab("vacunas")}>
           💉 Vacunas
@@ -322,6 +435,135 @@ async function handleScanSubmit(e) {
               ))
             )}
           </div>
+          </div>
+        )}
+
+        {/* PESTAÑA: ACTIVIDAD DIARIA */}
+        {tab === "actividad" && (
+          <div className="fade-in activity-section">
+            <section className="card activity-summary">
+              <div className="activity-summary-heading">
+                <div>
+                  <h2 className="card-title">Movimiento de {pet.name}</h2>
+                  <p>Registra paseos, juegos u otras actividades para llevar un seguimiento diario.</p>
+                </div>
+                <label className="activity-date-field">
+                  <span>Fecha</span>
+                  <input
+                    className="input-modern"
+                    type="date"
+                    value={activityDate}
+                    onChange={(event) => setActivityDate(event.target.value)}
+                  />
+                </label>
+              </div>
+
+              {activityError && <p className="activity-error" role="alert">{activityError}</p>}
+              {activityLoading ? (
+                <p className="activity-muted">Cargando actividad...</p>
+              ) : (
+                <>
+                  <div className="activity-progress-copy">
+                    <strong>{activity?.total_minutes || 0} min</strong>
+                    <span>
+                      {activity?.daily_goal_minutes
+                        ? `de ${activity.daily_goal_minutes} min de meta diaria`
+                        : "registrados hoy"}
+                    </span>
+                  </div>
+                  {activity?.daily_goal_minutes && (
+                    <div
+                      className="activity-progress-track"
+                      role="progressbar"
+                      aria-label="Progreso de actividad diaria"
+                      aria-valuemin="0"
+                      aria-valuemax={activity.daily_goal_minutes}
+                      aria-valuenow={Math.min(activity.total_minutes, activity.daily_goal_minutes)}
+                    >
+                      <span style={{ width: `${Math.min(100, (activity.total_minutes / activity.daily_goal_minutes) * 100)}%` }} />
+                    </div>
+                  )}
+                  {activity?.daily_goal_minutes && activity.total_minutes >= activity.daily_goal_minutes && (
+                    <p className="activity-goal-reached">¡Meta diaria alcanzada! 🐾</p>
+                  )}
+                </>
+              )}
+            </section>
+
+            <div className="activity-forms-grid">
+              <form className="card form-modern" onSubmit={handleAddActivity}>
+                <h3 className="form-title">Registrar actividad</h3>
+                <div className="input-group">
+                  <label htmlFor="activity-type">Tipo de actividad</label>
+                  <select
+                    id="activity-type"
+                    className="input-modern"
+                    value={activityForm.activity_type}
+                    onChange={(event) => setActivityForm({ ...activityForm, activity_type: event.target.value })}
+                  >
+                    <option value="walk">Paseo</option>
+                    <option value="play">Juego</option>
+                    <option value="training">Entrenamiento</option>
+                    <option value="other">Otra actividad</option>
+                  </select>
+                </div>
+                <div className="input-group">
+                  <label htmlFor="activity-duration">Duración (minutos)</label>
+                  <input
+                    id="activity-duration"
+                    className="input-modern"
+                    type="number"
+                    min="1"
+                    max="1440"
+                    step="1"
+                    value={activityForm.duration_minutes}
+                    onChange={(event) => setActivityForm({ ...activityForm, duration_minutes: event.target.value })}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn-primary" disabled={activityLoading}>Guardar actividad</button>
+              </form>
+
+              <form className="card form-modern" onSubmit={handleSaveGoal}>
+                <h3 className="form-title">Meta diaria</h3>
+                <p className="activity-muted">Define una meta adecuada para tu mascota, considerando las indicaciones de su veterinario.</p>
+                <div className="input-group">
+                  <label htmlFor="activity-goal">Minutos de actividad al día</label>
+                  <input
+                    id="activity-goal"
+                    className="input-modern"
+                    type="number"
+                    min="1"
+                    max="1440"
+                    step="1"
+                    value={goalForm}
+                    onChange={(event) => setGoalForm(event.target.value)}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn-primary" disabled={activityLoading}>Guardar meta</button>
+              </form>
+            </div>
+
+            <section className="card activity-history">
+              <h3 className="section-title">Actividad registrada</h3>
+              {!activity?.entries?.length ? (
+                <p className="activity-muted">No hay actividades registradas para esta fecha.</p>
+              ) : (
+                <ul>
+                  {activity.entries.map((entry) => (
+                    <li key={entry.id}>
+                      <span className="activity-entry-icon" aria-hidden="true">
+                        {entry.activity_type === "walk" ? "🚶" : entry.activity_type === "play" ? "🎾" : entry.activity_type === "training" ? "🎯" : "🐾"}
+                      </span>
+                      <span className="activity-entry-name">{activityLabels[entry.activity_type] || activityLabels.other}</span>
+                      <strong>{entry.duration_minutes} min</strong>
+                      {entry.source === "device" && <span className="activity-source">Dispositivo</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           </div>
         )}
 

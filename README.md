@@ -40,7 +40,7 @@ pet-health-app/
         ├── api.js                 # cliente HTTP centralizado
         ├── AuthContext.jsx        # sesión global
         ├── App.jsx                # rutas
-        └── pages/                 # Login, Registro, Dashboard, Perfil de mascota
+        └── pages/                 # Login, Registro, Dashboard, Perfil y Tienda
 ```
 
 ## Cómo correrlo
@@ -85,15 +85,46 @@ paralelo.
 | POST   | `/api/auth/login`                      | Iniciar sesión (retorna JWT)          |
 | GET    | `/api/pets`                            | Listar mascotas del dueño autenticado |
 | POST   | `/api/pets`                            | Crear mascota                         |
+| POST   | `/api/pets/:id/avatar`                 | Subir foto JPG, PNG, WebP o GIF (máx. 5 MB) |
 | GET    | `/api/pets/:id/recommendations`        | Recomendación de dieta y suplementos  |
 | GET    | `/api/pets/:id/medical-records`        | Historial médico                      |
 | POST   | `/api/pets/:id/medical-records`        | Agregar registro médico               |
 | GET    | `/api/pets/:id/vaccines`               | Vacunas registradas                   |
 | POST   | `/api/pets/:id/vaccines`               | Registrar vacuna                      |
+| GET    | `/api/pets/:petId/activity?date=YYYY-MM-DD` | Actividad y meta diaria de una mascota |
+| POST   | `/api/pets/:petId/activity`             | Registrar minutos de actividad         |
+| PUT    | `/api/pets/:petId/activity/goal`        | Definir la meta diaria en minutos      |
 | GET    | `/api/reminders/upcoming?days=30`      | Vacunas próximas a vencer             |
 
 Todas las rutas de `/api/pets/*` y `/api/reminders/*` requieren el header
 `Authorization: Bearer <token>`.
+
+## Tienda de mascotas (demo)
+
+La sección **Tienda** permite explorar un catálogo de ejemplo de alimentos,
+juguetes, higiene y accesorios, buscar productos y armar un carrito que se
+conserva en el navegador. El catálogo y el carrito son demostrativos: todavía
+no hay gestión de inventario, pedidos ni procesamiento de pagos.
+
+## Actividad diaria (MVP)
+
+En cada perfil se pueden registrar manualmente paseos, juegos y otras
+actividades, definir una meta diaria en minutos y revisar el progreso del día.
+El panel muestra el avance y presenta un recordatorio dentro de la app cuando
+se abre el dashboard y la mascota aún no alcanza su meta. La meta debe ajustarse
+según las necesidades de cada mascota y las indicaciones de su veterinario.
+
+Los registros distinguen su origen (`manual` o `device`) para facilitar una
+integración futura con un wearable para mascotas. La conexión con dispositivos
+no está implementada en esta versión.
+
+## Fotos de mascotas
+
+Se puede subir una foto al registrar una mascota o cambiarla desde su perfil.
+Las imágenes se guardan en `backend/uploads` y se sirven desde `/uploads`.
+En esta versión se muestra la foto original con un avatar animado sutil; la
+generación de una ilustración personalizada a partir de la foto aún no está
+integrada.
 
 ## Motor de recomendación (MVP)
 
@@ -113,7 +144,8 @@ entrenado con datos reales, etc.) a medida que el proyecto avance.
 
 - [ ] Migrar SQLite → PostgreSQL para producción.
 - [ ] Endpoint de telemedicina (videollamada / chat con veterinario).
-- [ ] Integración con marketplace (catálogo de productos + checkout + comisión).
+- [ ] Integrar la tienda con productos e inventario del backend, pedidos y checkout.
+- [ ] Integrar datos de actividad con un wearable para mascotas.
 - [ ] Notificaciones push/email para recordatorios de vacunas.
 - [ ] Subida de imágenes de mascotas (S3 o similar) en vez de `avatar_url` manual.
 - [ ] Tests automatizados (Jest/Supertest en backend, Vitest en frontend).

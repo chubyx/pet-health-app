@@ -8,6 +8,7 @@ const petsRoutes = require("./routes/pets");
 const medicalRecordsRoutes = require("./routes/medicalRecords");
 const vaccinesRoutes = require("./routes/vaccines");
 const remindersRoutes = require("./routes/reminders");
+const activityRoutes = require("./routes/activity");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -23,6 +24,7 @@ app.use("/api/pets", petsRoutes);
 app.use("/api/pets/:petId/medical-records", medicalRecordsRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Servir archivos estáticos desde 'uploads/'
 app.use("/api/pets/:petId/vaccines", vaccinesRoutes);
+app.use("/api/pets/:petId/activity", activityRoutes);
 app.use("/api/reminders", remindersRoutes);
 
 // Manejador de errores genérico

@@ -33,6 +33,23 @@ export const api = {
   getPets: () => request("/pets"),
   getPet: (id) => request(`/pets/${id}`),
   createPet: (payload) => request("/pets", { method: "POST", body: JSON.stringify(payload) }),
+  uploadPetAvatar: async (petId, imageFile) => {
+    const formData = new FormData();
+    formData.append("avatar", imageFile);
+    const token = getToken();
+    const res = await fetch(`${BASE_URL}/pets/${petId}/avatar`, {
+      method: "POST",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || "No se pudo subir la foto");
+    }
+    return data;
+  },
   updatePet: (id, payload) => request(`/pets/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deletePet: (id) => request(`/pets/${id}`, { method: "DELETE" }),
   getRecommendation: (id) => request(`/pets/${id}/recommendations`),
@@ -71,4 +88,15 @@ export const api = {
 
   // Reminders
   getUpcomingReminders: (days = 30) => request(`/reminders/upcoming?days=${days}`),
+
+  // Daily activity
+  getPetActivity: (petId, date) =>
+    request(`/pets/${petId}/activity?date=${encodeURIComponent(date)}`),
+  addPetActivity: (petId, payload) =>
+    request(`/pets/${petId}/activity`, { method: "POST", body: JSON.stringify(payload) }),
+  setPetActivityGoal: (petId, dailyGoalMinutes) =>
+    request(`/pets/${petId}/activity/goal`, {
+      method: "PUT",
+      body: JSON.stringify({ daily_goal_minutes: dailyGoalMinutes }),
+    }),
 };

@@ -8,6 +8,16 @@
 .pet-avatar-large { font-size: 48px; width: 88px; height: 88px; background: var(--primary-light); border-radius: 24px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary-glow); }
 .pet-info-main h1 { font-size: 28px; margin-bottom: 10px; color: var(--text-main); }
 .pet-badges, .supplements-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.pet-avatar-profile { display: grid; justify-items: center; gap: 8px; }
+.pet-avatar-large { overflow: hidden; animation: avatarFloat 4s ease-in-out infinite; }
+.pet-avatar-large img { width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
+.pet-avatar-upload { padding: 6px 10px; border: 1px solid #A7F3D0; border-radius: 16px; background: #ECFDF5; color: #047857; font-size: 11px; font-weight: 800; cursor: pointer; }
+.pet-avatar-upload:hover { background: #D1FAE5; }
+.pet-avatar-upload.uploading { opacity: .6; cursor: wait; }
+.pet-avatar-upload input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+.pet-avatar-upload:focus-within { outline: 3px solid var(--primary-glow); outline-offset: 2px; }
+.pet-avatar-error { max-width: 160px; color: #B91C1C; font-size: 11px; text-align: center; }
+@keyframes avatarFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 
 /* Botones de Pestañas */
 .tabs-modern { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid var(--border-color); }
@@ -32,3 +42,42 @@
 .vaccines-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 .vaccine-card { padding: 24px; display: flex; gap: 20px; align-items: flex-start; }
 .vaccine-icon { font-size: 32px; background: #ECFDF5; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid #D1FAE5; }
+
+.activity-section { display: grid; gap: 20px; }
+.activity-summary { padding: 24px; border: 1px solid var(--border-color); border-radius: 20px; background: white; box-shadow: var(--shadow-subtle); }
+.activity-summary-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.activity-summary-heading .card-title { margin-bottom: 4px; }
+.activity-summary-heading p, .activity-muted { color: var(--text-muted); font-size: 13px; }
+.activity-date-field { display: grid; gap: 5px; min-width: 160px; color: var(--text-muted); font-size: 12px; font-weight: 700; }
+.activity-date-field .input-modern { padding: 9px 10px; font-size: 13px; }
+.activity-progress-copy { display: flex; align-items: baseline; gap: 8px; margin: 22px 0 8px; }
+.activity-progress-copy strong { color: var(--primary-dark); font-size: 28px; }
+.activity-progress-copy span { color: var(--text-muted); font-size: 13px; }
+.activity-progress-track { height: 12px; overflow: hidden; border-radius: 12px; background: #E2E8F0; }
+.activity-progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #10B981, #34D399); transition: width .3s ease; }
+.activity-goal-reached { margin-top: 9px; color: var(--primary-dark); font-size: 13px; font-weight: 700; }
+.activity-error { padding: 10px 12px; border-radius: 10px; background: #FEF2F2; color: #991B1B; font-size: 13px; }
+.activity-forms-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.activity-forms-grid .form-modern { display: grid; align-content: start; gap: 14px; }
+.activity-forms-grid .form-title { margin-bottom: 0; }
+.activity-forms-grid .input-group { display: grid; gap: 6px; }
+.activity-forms-grid .input-group label { font-size: 13px; font-weight: 600; }
+.activity-history { padding: 24px; border: 1px solid var(--border-color); border-radius: 20px; background: white; }
+.activity-history .section-title { margin-bottom: 12px; }
+.activity-history ul { display: grid; gap: 8px; list-style: none; }
+.activity-history li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: #F8FAFC; font-size: 13px; }
+.activity-entry-icon { font-size: 20px; }
+.activity-entry-name { flex: 1; }
+.activity-source { padding: 3px 7px; border-radius: 10px; background: #DBEAFE; color: #1D4ED8; font-size: 10px; font-weight: 700; }
+
+@media (max-width: 640px) {
+  .activity-forms-grid { grid-template-columns: 1fr; }
+  .activity-summary-heading { flex-direction: column; }
+  .activity-date-field { width: 100%; }
+  .tabs-modern { overflow-x: auto; }
+  .tab-modern { flex: 0 0 auto; padding: 12px; font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-avatar-large { animation: none; }
+}
